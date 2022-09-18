@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>To DO LIST</title>
+    <link rel="stylesheet" href="project.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    </script>
+</head>
+
+<body>
+
+    <div class="main">
+
+        <div class="title">
+            <p>TO DO LIST</p>
+        </div>
+
+
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" aria-describedby="emailHelp">
+            <div id="emailHelp" class="form-text">Add the title of your task</div>
+        </div>
+
+        <div class="form-floating">
+            <div>Task</div>
+            <textarea class="form-control" placeholder="Add your task here" id="description"></textarea>
+            <div id="emailHelp" class="form-text">Add the details of the task here</div>
+
+
+        </div><br>
+
+        <input name="statusbox" type="text" class="form-control" id="status" aria-describedby="emailHelp" value="undone"
+            hidden="hidden">
+
+        <button type="submit" class="btn btn-primary" id="add">Add to list</button>
+
+        <br>
+        <div id="items">
+            <h2>Added Tasks</h2>
+        </div>
+        <br>
+        <br>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">S.No</th>
+                    <th scope="col">Task Title</th>
+                    <th scope="col">Task Details</th>
+
+                    <th scope="col">Remove Task</th>
+                    <th scope="col">Task Status</th>
+
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        displayTable();
+
+
+
+
+        function updateTable() {
+            console.log("updating list")
+            Task_Name = document.getElementById("title");
+            Task_Details = document.getElementById("description")
+            Task_Status = document.getElementById("status")
+
+
+
+            if (localStorage.getItem('Storage_Data') == null) {
+                JSON_Array_Parsed = [];
+                JSON_Array_Parsed.push([Task_Name.value, Task_Details.value, Task_Status.value]);
+                localStorage.setItem('Storage_Data', JSON.stringify(JSON_Array_Parsed))
+            }
+            else {
+                JSON_Array_String = localStorage.getItem('Storage_Data');
+                JSON_Array_Parsed = JSON.parse(JSON_Array_String);
+                JSON_Array_Parsed.push([Task_Name.value, Task_Details.value, Task_Status.value]);
+                localStorage.setItem('Storage_Data', JSON.stringify(JSON_Array_Parsed));
+
+            }
+
+        }
+
+
+
+
+
+        function displayTable() {
+
+            Task_Name = document.getElementById("title");
+            Task_Details = document.getElementById("description")
+            Task_Status = document.getElementById("status")
+
+            let JSON_Array_Parsed = [];
+
+            if (localStorage.getItem('Storage_Data') != null) {
+                JSON_Array_String = localStorage.getItem('Storage_Data');
+                JSON_Array_Parsed = JSON.parse(JSON_Array_String);
+
+            }
+
+            let tableBody = document.getElementById("tableBody");
+            let str = "";
+            JSON_Array_Parsed.forEach((element, index) => {
+                if (element[2] == "undone") {
+                    str += `
+                    <tr>
+                    <th scope="row">${index + 1}</th>
+                    <td>${element[0]}</td>
+                    <td>${element[1]}</td>
+                    <td><button class="btn btn-sm btn-primary" onclick="deleteTask(${index})">Remove</button></td>
+                    <td> <button class="btn btn-sm btn-primary" onclick="taskCompleted(${index})">Done</button></td> 
+                    </tr>
+                `
+                }
+
+                else if (element[2] == "done") {
+                    str += `
+                    <tr>
+                    <th scope="row">${index + 1}</th>
+                    <td><strike>${element[0]}</strike></td>
+                    <td><strike>${element[1]}</strike></td>
+                    <td><button class="btn btn-sm btn-primary" onclick="deleteTask(${index})">Remove</button></td>
+                    <td>Completed</td>
+                    </tr>
+                `
+                }
+
+            })
+            if (str != null) {
+                tableBody.innerHTML = str;
+            }
+
+        }
+
+
+
+
+        function updateANDdisplay() {
+            updateTable();
+            displayTable();
+        }
+
+
+
+
+        function deleteTask(itemIndex) {
+            JSON_Array_String = localStorage.getItem('Storage_Data');
+            JSON_Array_Parsed = JSON.parse(JSON_Array_String);
+
+            JSON_Array_Parsed.splice(itemIndex, 1);
+            localStorage.setItem('Storage_Data', JSON.stringify(JSON_Array_Parsed));
+            displayTable();
+        }
+
+
+
+        function taskCompleted(itemIndex) {
+            JSON_Array_String = localStorage.getItem('Storage_Data');
+            JSON_Array_Parsed = JSON.parse(JSON_Array_String);
+
+            JSON_Array_Parsed.forEach((element, index) => {
+                if (index == itemIndex) {
+                    element[2] = "done";
+                }
+            })
+
+            localStorage.setItem('Storage_Data', JSON.stringify(JSON_Array_Parsed));
+            location.reload();
+        }
+
+
+
+        add = document.getElementById("add");
+        add.addEventListener("click", updateANDdisplay);
+    </script>
+</body>
+
+</html>
